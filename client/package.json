@@ -1,0 +1,21 @@
+{
+  "name": "frontend",
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "sockjs-client": "^1.5.1",
+    "stompjs": "^2.3.3",
+    "vue": "^3.3.4"
+  },
+  "devDependencies": {
+    "@types/sockjs-client": "^1.5.4",
+    "@types/stompjs": "^2.3.9",
+    "@vitejs/plugin-vue": "^4.5.0",
+    "typescript": "^5.4.0",
+    "vite": "^5.0.0"
+  }
+}
