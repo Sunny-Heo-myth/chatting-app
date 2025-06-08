@@ -1,22 +1,25 @@
-import { defineConfig } from 'vite';
-import vue from '@vitejs/plugin-vue';
+import { defineConfig } from 'vite'
+import vue from '@vitejs/plugin-vue'
 
 export default defineConfig({
     plugins: [vue()],
+    define: {
+        global: 'window',
+    },
     server: {
         proxy: {
             '/ws': {
                 target: 'http://localhost:8080',
-                ws: true
+                ws: true,
             },
             '/app': {
                 target: 'http://localhost:8080',
-                changeOrigin: true
+                changeOrigin: true,
             },
             '/topic': {
                 target: 'http://localhost:8080',
-                changeOrigin: true
+                changeOrigin: true,
             }
         }
     }
-});
+})
