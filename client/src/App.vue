@@ -6,39 +6,63 @@
         <strong>{{ msg.from }}:</strong> {{ msg.content }}
       </div>
     </div>
-    <input v-model="from" placeholder="Your name" class="chat-input" />
+    <input v-model="from" placeholder="Your name" class="chat-input"/>
     <input v-model="content" @keyup.enter="sendMessage" placeholder="Type a message..." class="chat-input" />
     <button @click="sendMessage">Send</button>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import {onMounted, ref} from 'vue';
 import SockJS from 'sockjs-client';
-import { Client, over } from 'stompjs';
+import {Client, Message, over} from 'stompjs';
+import {ChatMessage} from "./room/service/roomService";
 
-const from = ref('');
-const content = ref('');
-const messages = ref<{ from: string; content: string }[]>([]);
-let stompClient: Client;
+const from = ref<string>('');
+const content = ref<string>('');
+
+const messages = ref<ChatMessage[]>([]);
+const client = ref<Client>(null);
+
+onMounted(async () => {
+  try {
+    client.value = createStompClient();
+    await connectStompClient();
+    await subscribeToTopic('/topic/messages');  // Subscribe this channel
+  } catch (err) {
+    console.error('WebSocket setup failed:', err);
+  }
+});
+
+const createStompClient = (): Client => {
+  const socket = new SockJS('/ws'); // This is the endpoint it's targeting.
+  return over(socket);
+}
+
+const connectStompClient = async (): Promise<void> => {
+  await new Promise<void>((resolve, reject) => {
+    client.value.connect({}, () => resolve(), error => reject(error));
+  });
+}
+
+const subscribeToTopic = async (topic: string): Promise<void> => {
+  await new Promise<void>((resolve) => {
+    client.value.subscribe(topic, (message: Message) => {
+      const msg: ChatMessage = JSON.parse(message.body);
+      messages.value.push(msg);
+    });
+    resolve();
+  });
+}
 
 const sendMessage = () => {
-  if (stompClient && stompClient.connected && from.value && content.value.trim()) {
-    stompClient.send('/app/send', {}, JSON.stringify({ from: from.value, content: content.value }));
+  if (client && client.value.connected && from.value && content.value.trim()) {
+    client.value.send('/app/send', {},
+        JSON.stringify({ from: from.value, content: content.value }));
     content.value = '';
   }
 };
 
-onMounted(() => {
-  const socket = new SockJS('/ws');
-  stompClient = over(socket);
-  stompClient.connect({}, () => {
-    stompClient.subscribe('/topic/messages', (message) => {
-      const msg = JSON.parse(message.body);
-      messages.value.push(msg);
-    });
-  });
-});
 </script>
 
 <style>
