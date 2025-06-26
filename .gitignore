@@ -39,3 +39,7 @@ out/
 ### client pacakges ###
 /client/node_modules/
 /client/dist/
+
+.DS_Store
+server/.DS_Store
+node_modules/
