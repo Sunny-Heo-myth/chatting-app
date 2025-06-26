@@ -1,3 +1,3 @@
-package com.chatapp.room.dto;
+package com.chatapp.api.dto;
 
 public record ChatMessage(String from, String content) {}

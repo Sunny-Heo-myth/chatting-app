@@ -1,4 +1,4 @@
-package com.chatapp.room.service;
+package com.chatapp.chat.service;
 
 public class ChatMessageService {
 }
