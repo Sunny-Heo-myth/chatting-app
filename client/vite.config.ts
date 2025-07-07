@@ -1,25 +1,9 @@
-import { defineConfig } from 'vite'
+import {defineConfig} from 'vite'
 import vue from '@vitejs/plugin-vue'
 
 export default defineConfig({
     plugins: [vue()],
-    define: {
-        global: 'window',
-    },
     server: {
-        proxy: {
-            '/ws': {
-                target: 'http://localhost:8080',
-                ws: true,
-            },
-            '/app': {
-                target: 'http://localhost:8080',
-                changeOrigin: true,
-            },
-            '/topic': {
-                target: 'http://localhost:8080',
-                changeOrigin: true,
-            }
-        }
+        port: 5173,
     }
 })
