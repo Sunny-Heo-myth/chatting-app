@@ -1,38 +1,36 @@
 package com.chatapp.handler;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
-import org.springframework.web.socket.handler.TextWebSocketHandler;
+import org.springframework.web.socket.handler.AbstractWebSocketHandler;
 
+import java.time.Instant;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class ChatWebSocketHandler extends TextWebSocketHandler {
-    // Map<roomName, Set<Session>>
+public class ChatWebSocketHandler extends AbstractWebSocketHandler {
+
     private final Map<String, Set<WebSocketSession>> rooms = new ConcurrentHashMap<>();
+    private final ObjectMapper mapper = new ObjectMapper();
 
     @Override
     public void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
-        String[] parts = message.getPayload().split("\\|", 4);
+        String[] parts = message.getPayload().split("\\|", 3);
         String command = parts[0];
+        String room = parts[1];
 
         switch (command) {
-            case "join" -> {
-                String room = parts[1];
-                rooms.computeIfAbsent(room, r -> ConcurrentHashMap.newKeySet()).add(session);
-            }
+            case "join" -> rooms.computeIfAbsent(room, r -> ConcurrentHashMap.newKeySet()).add(session);
             case "send" -> {
-                String room = parts[1];
-                String name = parts[2];
-                String content = parts[3];
-                String fullMessage = name + ": " + content;
+                Message text = mapper.readValue(parts[2], Message.class);
+                text.setTimestamp(Instant.now().toString());
 
-                if (rooms.containsKey(room)) {
-                    for (WebSocketSession s : rooms.get(room)) {
-                        if (s.isOpen()) s.sendMessage(new TextMessage(fullMessage));
-                    }
+                String broadcast = mapper.writeValueAsString(text);
+                for (WebSocketSession s : rooms.getOrDefault(room, Set.of())) {
+                    if (s.isOpen()) s.sendMessage(new TextMessage(broadcast));
                 }
             }
         }
@@ -40,8 +38,7 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
 
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) {
-        for (Set<WebSocketSession> room : rooms.values()) {
-            room.remove(session);
-        }
+        rooms.values().forEach(set -> set.remove(session));
     }
+
 }

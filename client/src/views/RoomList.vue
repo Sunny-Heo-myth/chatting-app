@@ -33,6 +33,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import axios from 'axios'
+import {formatDate} from "../common/utils";
 
 interface Room {
   name: string
@@ -45,11 +46,6 @@ const rooms = ref<Room[]>([])
 async function fetchRooms() {
   const res = await axios.get<Room[]>(`/api/rooms`)
   rooms.value = res.data
-}
-
-function formatDate(dateStr: string): string {
-  const date = new Date(dateStr)
-  return date.toLocaleString()
 }
 
 async function createRoom() {
