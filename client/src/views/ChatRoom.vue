@@ -1,9 +1,11 @@
 <template>
-  <div>
+  <div class="chatroom">
     <h1>Chatroom: {{ room }}</h1>
-    <input v-model="name" placeholder="Your name" />
-    <input v-model="content" @keyup.enter="sendMessage" placeholder="Message" />
-    <ul>
+    <div class="inputs">
+      <input v-model="name" placeholder="Your name" />
+      <input v-model="content" @keyup.enter="sendMessage" placeholder="Message" />
+    </div>
+    <ul class="messages">
       <li v-for="(msg, i) in messages" :key="i">{{ msg }}</li>
     </ul>
   </div>
@@ -42,3 +44,32 @@ function sendMessage() {
 onMounted(connect)
 onUnmounted(() => socket?.close())
 </script>
+
+<style scoped>
+.chatroom {
+  max-width: 600px;
+  margin: 2rem auto;
+  padding: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  background: #fdfdfd;
+}
+.inputs {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+input {
+  flex: 1;
+  padding: 0.5rem;
+  font-size: 1rem;
+}
+.messages {
+  list-style: none;
+  padding: 0;
+}
+.messages li {
+  padding: 0.25rem 0;
+  border-bottom: 1px solid #eee;
+}
+</style>
