@@ -4,31 +4,39 @@
     <input v-model="newRoom" placeholder="Enter room name" />
     <button @click="createRoom">Create</button>
     <ul>
-      <li v-for="room in rooms" :key="room">
-        <router-link :to="`/room/${room}`">{{ room }}</router-link>
+      <li v-for="room in rooms" :key="room.name">
+        <router-link :to="`/room/${room.name}`">{{ room.name }}</router-link>
       </li>
     </ul>
   </div>
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { ref, onMounted } from 'vue'
+import axios from 'axios'
+
+interface Room {
+  name: string
+  createdAt: string
+}
+
 const newRoom = ref('')
-const rooms = ref<string[]>([])
-let ws: WebSocket
+const rooms = ref<Room[]>([])
 
-function connectSocket() {
-  ws = new WebSocket(import.meta.env.VITE_WS_URL)
-  ws.onmessage = (event: MessageEvent<string>) => {
-    const [type, data] = event.data.split('|', 2)
-    if (type === 'rooms') rooms.value = data ? data.split(',') : []
+async function fetchRooms() {
+  const res = await axios.get<Room[]>(`/api/rooms`)
+  rooms.value = res.data
+}
+
+async function createRoom() {
+  const name = newRoom.value.trim()
+  if (name && !rooms.value.find(r => r.name === name)) {
+    const room: Room = { name, createdAt: new Date().toISOString() }
+    await axios.post(`/api/rooms`, room)
+    rooms.value.push(room)
+    newRoom.value = ''
   }
-  ws.onopen = () => ws.send(`join|roomlist`)
 }
 
-function createRoom() {
-  if (newRoom.value.trim()) ws.send(`create|${newRoom.value}`)
-}
-
-onMounted(connectSocket)
+onMounted(fetchRooms)
 </script>

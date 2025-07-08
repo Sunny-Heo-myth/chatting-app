@@ -10,27 +10,35 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import { useRoute } from 'vue-router'
+
 const route = useRoute()
 const room = route.params.name as string
 const messages = ref<string[]>([])
 const name = ref('')
 const content = ref('')
-let ws: WebSocket
+let socket: WebSocket | null = null
 
 function connect() {
-  ws = new WebSocket(import.meta.env.VITE_WS_URL)
-  ws.onopen = () => ws.send(`join|${room}`)
-  ws.onmessage = (event) => messages.value.push(event.data)
+  socket = new WebSocket('ws://localhost:8080/ws/chat')
+
+  socket.onopen = () => {
+    socket?.send(`join|${room}`)
+  }
+
+  socket.onmessage = (event) => {
+    messages.value.push(event.data)
+  }
 }
 
 function sendMessage() {
-  if (name.value && content.value) {
-    ws.send(`send|${room}|${name.value}|${content.value}`)
+  if (socket && name.value && content.value) {
+    socket.send(`send|${room}|${name.value}|${content.value}`)
     content.value = ''
   }
 }
 
 onMounted(connect)
+onUnmounted(() => socket?.close())
 </script>
