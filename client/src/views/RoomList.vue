@@ -1,17 +1,4 @@
-<!--<template>-->
-<!--  <div>-->
-<!--    <h1>Room List</h1>-->
-<!--    <input v-model="newRoom" placeholder="Enter room name" />-->
-<!--    <button @click="createRoom">Create</button>-->
-<!--    <ul>-->
-<!--      <li v-for="room in rooms" :key="room.name">-->
-<!--        <router-link :to="`/room/${room.name}`">-->
-<!--          {{ room.name }} <small>({{ formatDate(room.createdAt) }})</small>-->
-<!--        </router-link>-->
-<!--      </li>-->
-<!--    </ul>-->
-<!--  </div>-->
-<!--</template>-->
+
 <template>
   <div class="container">
     <h1 class="title">Chat Rooms</h1>
