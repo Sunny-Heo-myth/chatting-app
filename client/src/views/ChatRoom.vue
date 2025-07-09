@@ -36,7 +36,7 @@ const content = ref('')
 let socket: WebSocket | null = null
 
 function connect() {
-  socket = new WebSocket('ws://localhost:8080/ws/chat')
+  socket = new WebSocket(import.meta.env.VITE_WS_URL)
 
   socket.onopen = () => {
     socket?.send(`join|${room.value}`)
