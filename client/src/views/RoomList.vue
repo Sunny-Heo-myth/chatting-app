@@ -23,25 +23,25 @@ import axios from 'axios'
 import {formatDate} from "../common/utils";
 
 interface Room {
-  name: string
+  name: string | null
   createdAt: string
 }
 
-const newRoom = ref('')
+const newRoom = ref(null)
 const rooms = ref<Room[]>([])
 
-async function fetchRooms() {
+const fetchRooms = async () => {
   const res = await axios.get<Room[]>(`/api/rooms`)
   rooms.value = res.data
 }
 
-async function createRoom() {
-  const name = newRoom.value.trim()
-  if (name && !rooms.value.find(r => r.name === name)) {
-    const room: Room = { name, createdAt: new Date().toISOString() }
+const createRoom = async () => {
+  // const name = newRoom.value.trim()
+  if (!rooms.value.find(r => r.name === newRoom.value)) {
+    const room: Room = { name: newRoom.value, createdAt: new Date().toISOString() }
     await axios.post(`/api/rooms`, room)
     rooms.value.push(room)
-    newRoom.value = ''
+    newRoom.value = null
   }
 }
 

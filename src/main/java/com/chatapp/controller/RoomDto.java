@@ -12,6 +12,6 @@ import java.time.Instant;
 @NoArgsConstructor
 @AllArgsConstructor
 public class RoomDto {
-    private String name;
+//    private String name;
     private Instant createdAt;
 }
